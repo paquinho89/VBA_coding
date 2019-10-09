@@ -1,0 +1,327 @@
+Sub paquinho()
+
+Dim UltLinea As Long
+Dim firstdayweek As Date
+Dim i As Long
+
+'Primer Indicador "PREPARAR DOSSIERES"
+'Ruta_Base_Cambios = "https://myteams.gsk.com/:x:/r/sites/Pack_Management_Spain/TeamDocuments/Base%202019.xlsx?d=wb3368e5eb8084b3ea4a4e77e5d7bc4b5&csf=1"
+Ruta_Base_Cambios = "K:\PACK MANAGEMENT\BASE\Base 2019.xlsx"
+Nombre_Base_Cambios = "Base 2019.xlsx"
+Ruta_Base_Indicador = "K:\REGISTROS Y PACK MANAGEMENT\KPI\Indicador PM\2019\Indicador-PM-01 2019.xlsx"
+Nombre_Base_Indicador = "Indicador-PM-01 2019.xlsx"
+
+
+'Abrir Plan-Revision preparacion y eliminar los datos
+Workbooks.Open Filename:=Ruta_Base_Indicador
+Workbooks(Nombre_Base_Indicador).Worksheets("Preparar dossieres").Range("A2:G50").Delete
+
+'Abrir Base 2019 y hacer el filtro por color rojo en la columna x
+Workbooks.Open Filename:=Ruta_Base_Cambios, ReadOnly:=False
+'Workbooks.Open Filename:=Ruta_Base_Cambios, ReadOnly:=False, WriteResPassword:="oscar"
+'Eliminar el uso compartido de la hoja
+If ActiveWorkbook.MultiUserEditing Then
+    ActiveWorkbook.ExclusiveAccess
+End If
+   
+'Que elimine los filtros de la hoja
+Worksheets("Pendiente").Activate
+Rows("1:1").Select
+Selection.AutoFilter
+    
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Range("Y1:Y500").AutoFilter Field:=1, Criteria1:=RGB(255, 0, 0), Operator:=xlFilterCellColor
+   
+'Copiar columnas de MLCC y pasarlas a la hoja revisión-preparación
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Range("E2:E" & Cells(Rows.Count, "E").End(xlUp).Row).Select
+Selection.Copy
+
+Workbooks(Nombre_Base_Indicador).Worksheets("Preparar dossieres").Activate
+Range("B2").Select
+
+ActiveCell.PasteSpecial xlPasteValues
+Application.CutCopyMode = False
+
+'Copiar columnas de Producto y pasarlas a la hoja de revisión-preparación
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Activate
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Range("F2:F" & Cells(Rows.Count, "F").End(xlUp).Row).Select
+Selection.Copy
+
+Workbooks(Nombre_Base_Indicador).Worksheets("Preparar dossieres").Activate
+Range("C2").Select
+
+ActiveCell.PasteSpecial xlPasteValues
+Application.CutCopyMode = False
+
+
+'Copiar columnas de CAN y pasarlas a la hoja revisión preparación
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Activate
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Range("J2:J" & Cells(Rows.Count, "J").End(xlUp).Row).Select
+Selection.Copy
+
+Workbooks(Nombre_Base_Indicador).Worksheets("Preparar dossieres").Activate
+Range("D2").Select
+
+ActiveCell.PasteSpecial xlPasteValues
+Application.CutCopyMode = False
+
+'Copiar columnas de CO y pasarlas a la hoja revisión preparación
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Activate
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Range("L2:L" & Cells(Rows.Count, "L").End(xlUp).Row).Select
+Selection.Copy
+
+Workbooks(Nombre_Base_Indicador).Worksheets("Preparar dossieres").Activate
+Range("E2").Select
+
+ActiveCell.PasteSpecial xlPasteValues
+Application.CutCopyMode = False
+
+'Copiar columnas de RA Aprobación y pasarlas a la hoja revisión preparación
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Activate
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Range("R2:R" & Cells(Rows.Count, "R").End(xlUp).Row).Select
+Selection.Copy
+
+Workbooks(Nombre_Base_Indicador).Worksheets("Preparar dossieres").Activate
+Range("F2").Select
+
+ActiveCell.PasteSpecial xlPasteValues
+Application.CutCopyMode = False
+
+Columns("F:F").NumberFormat = "m/d/yyyy"
+
+'Copiar columnas de Fecha Teórica Aprobación y pasarlas a la hoja revisión preparación
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Activate
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Range("X2:X" & Cells(Rows.Count, "X").End(xlUp).Row).Select
+Selection.Copy
+
+Workbooks(Nombre_Base_Indicador).Worksheets("Preparar dossieres").Activate
+Range("G2").Select
+
+ActiveCell.PasteSpecial xlPasteValues
+Application.CutCopyMode = False
+
+Columns("G:G").NumberFormat = "m/d/yyyy"
+
+'Contar las columnas que hay para colocar la fecha en las celdas correctas
+Workbooks(Nombre_Base_Indicador).Worksheets("Preparar dossieres").Activate
+Range("C2:C" & Cells(Rows.Count, "C").End(xlUp).Row).Select
+i = Selection.Count
+
+'Escribir el primer día de la semana en la columna A
+firstdayweek = Date - Weekday(Date, 2) + 1
+
+For i = 2 To i + 1
+Cells(i, 1) = firstdayweek
+Next i
+
+'Eliminar los COs duplicados
+Range("E2").Select
+Do While Not IsEmpty(ActiveCell)
+    x = WorksheetFunction.CountIf(Range("E:E"), ActiveCell)
+    If x > 1 Then
+        ActiveCell.EntireRow.Delete
+    Else
+        ActiveCell.Offset(1, 0).Select
+    End If
+Loop
+
+'Ordenar los dossieres pendientes de preparación por orden de fecha
+
+ Workbooks(Nombre_Base_Indicador).Worksheets("Preparar dossieres").Sort.SortFields.Clear
+    Workbooks(Nombre_Base_Indicador).Worksheets("Preparar dossieres").Sort.SortFields.Add Key:=Range("G2:G90") _
+        , SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+    With Workbooks(Nombre_Base_Indicador).Worksheets("Preparar dossieres").Sort
+        .SetRange Range("A1:H90")
+        .Header = xlYes
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+    
+'Sumar todos los dossieres pendientes de preparación y escribir el número en la hoja "Gráfico"
+Workbooks(Nombre_Base_Indicador).Worksheets("Preparar dossieres").Activate
+Range("B2:B" & Cells(Rows.Count, "B").End(xlUp).Row).Select
+NumeroDossieres = Selection.Count
+
+UltLinea = Workbooks(Nombre_Base_Indicador).Worksheets("PTES PREPARAR FUERA FECHA").Range("F" & Rows.Count).End(xlUp).Row
+Workbooks(Nombre_Base_Indicador).Worksheets("PTES PREPARAR FUERA FECHA").Select
+
+'Esto es para si estamos en la misma semana que no me escriba el número de dossieres en la siguiente celda
+If Workbooks(Nombre_Base_Indicador).Worksheets("Preparar dossieres").Range("A2") = Workbooks(Nombre_Base_Indicador).Worksheets("PTES PREPARAR FUERA FECHA").Cells(UltLinea, 6).Offset(0, 1) Then
+Workbooks(Nombre_Base_Indicador).Worksheets("PTES PREPARAR FUERA FECHA").Cells(UltLinea, 6).Activate
+Else
+Cells(UltLinea + 1, 6).Activate
+End If
+
+ActiveCell = NumeroDossieres
+
+'Segundo indicador "REVISAR DOSSIERES"
+
+'Ir a Plan-Revision preparacion y eliminar los datos
+Workbooks(Nombre_Base_Indicador).Worksheets("Revisar dossieres").Range("A2:H100").Delete
+
+'Ir a Base 2018 y hacer el filtro por color rojo
+   
+   'Que elimine los filtros de la hoja
+   Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Rows("1:1").AutoFilter
+    
+   Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Range("AB1:AB500").AutoFilter Field:=1, Criteria1:=RGB(255, 0, 0), Operator:=xlFilterCellColor
+   
+'Copiar columnas de Producto y pasarlas a la hoja de revisión-preparación
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Activate
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Range("F2:F" & Cells(Rows.Count, "F").End(xlUp).Row).Select
+Selection.Copy
+
+Workbooks(Nombre_Base_Indicador).Worksheets("Revisar dossieres").Activate
+Range("B2").Select
+
+ActiveCell.PasteSpecial xlPasteValues
+Application.CutCopyMode = False
+
+
+'Copiar columnas de CR/PCF y pasarlas a la hoja revisión preparación
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Activate
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Range("J2:J" & Cells(Rows.Count, "J").End(xlUp).Row).Select
+Selection.Copy
+
+Workbooks(Nombre_Base_Indicador).Worksheets("Revisar dossieres").Activate
+Range("C2").Select
+
+ActiveCell.PasteSpecial xlPasteValues
+Application.CutCopyMode = False
+
+'Copiar columnas de CO y pasarlas a la hoja revisión preparación
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Activate
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Range("L2:L" & Cells(Rows.Count, "L").End(xlUp).Row).Select
+Selection.Copy
+
+Workbooks(Nombre_Base_Indicador).Worksheets("Revisar dossieres").Activate
+Range("D2").Select
+
+ActiveCell.PasteSpecial xlPasteValues
+Application.CutCopyMode = False
+
+'Copiar columnas de Business Approval y pasarlas a la hoja revisión preparación
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Activate
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Range("R2:R" & Cells(Rows.Count, "R").End(xlUp).Row).Select
+Selection.Copy
+
+Workbooks(Nombre_Base_Indicador).Worksheets("Revisar dossieres").Activate
+Range("E2").Select
+
+ActiveCell.PasteSpecial xlPasteValues
+Application.CutCopyMode = False
+
+Columns("E:E").NumberFormat = "m/d/yyyy"
+
+'Copiar columnas Revisión Dossier y pasarlas a la hoja revisión preparación
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Activate
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Range("Z2:Z" & Cells(Rows.Count, "Z").End(xlUp).Row).Select
+Selection.Copy
+
+Workbooks(Nombre_Base_Indicador).Worksheets("Revisar dossieres").Activate
+Range("F2").Select
+
+ActiveCell.PasteSpecial xlPasteValues
+Application.CutCopyMode = False
+
+Columns("F:F").NumberFormat = "m/d/yyyy"
+
+'Copiar columnas Fecha Teórica Revisión Dossier y pasarlas a la hoja revisión preparación
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Activate
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Range("AA2:AA" & Cells(Rows.Count, "AA").End(xlUp).Row).Select
+Selection.Copy
+
+Workbooks(Nombre_Base_Indicador).Worksheets("Revisar dossieres").Activate
+Range("G2").Select
+
+ActiveCell.PasteSpecial xlPasteValues
+Application.CutCopyMode = False
+
+Columns("G:G").NumberFormat = "m/d/yyyy"
+
+'Contar las columnas que hay para colocar la fecha en las celdas correctas
+Workbooks(Nombre_Base_Indicador).Worksheets("Revisar dossieres").Activate
+Range("C2:C" & Cells(Rows.Count, "C").End(xlUp).Row).Select
+i = Selection.Count
+
+'Escribir el primer día de la semana en la columna A
+firstdayweek = Date - Weekday(Date, 2) + 1
+
+For i = 2 To i + 1
+Cells(i, 1) = firstdayweek
+Next i
+
+
+'Eliminar los CRs duplicados
+Range("D2").Select
+Do While Not IsEmpty(ActiveCell)
+    x = WorksheetFunction.CountIf(Range("D:D"), ActiveCell)
+    If x > 1 Then
+        ActiveCell.EntireRow.Delete
+    Else
+        ActiveCell.Offset(1, 0).Select
+    End If
+Loop
+
+'Ordenar los dossieres pendientes de revisar por orden de fecha
+
+ ActiveWorkbook.Worksheets("Revisar dossieres").Sort.SortFields.Clear
+    ActiveWorkbook.Worksheets("Revisar dossieres").Sort.SortFields.Add Key:=Range("E2:E90") _
+        , SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+    With ActiveWorkbook.Worksheets("Revisar dossieres").Sort
+        .SetRange Range("A1:H90")
+        .Header = xlYes
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+
+'Sumar todos los dossieres pendientes de preparación y escribir el número en la hoja "Indicador PM-01 2016"
+Workbooks(Nombre_Base_Indicador).Worksheets("Revisar dossieres").Activate
+Range("B2:B" & Cells(Rows.Count, "B").End(xlUp).Row).Select
+NumeroDossieres = Selection.Count
+
+Workbooks(Nombre_Base_Indicador).Worksheets("PTES REVISAR FUERA FECHA").Activate
+UltLinea = Worksheets("PTES REVISAR FUERA FECHA").Range("F" & Rows.Count).End(xlUp).Row
+Worksheets("PTES REVISAR FUERA FECHA").Select
+
+'Esto es para que si estamos en la misma semana no me escriba el número de dossieres en la siguiente celda
+If Workbooks(Nombre_Base_Indicador).Worksheets("Revisar dossieres").Range("A2") = Workbooks(Nombre_Base_Indicador).Worksheets("PTES REVISAR FUERA FECHA").Cells(UltLinea, 6).Offset(0, 1) Then
+Cells(UltLinea, 6).Activate
+Else
+Cells(UltLinea + 1, 6).Activate
+End If
+
+
+ActiveCell = NumeroDossieres
+
+'Escribir la fecha de impresión
+Workbooks(Nombre_Base_Indicador).Worksheets("Gráfico").Range("K31") = Now
+Workbooks(Nombre_Base_Indicador).Worksheets("Gráfico").Range("K31").NumberFormat = "m/d/yyyy"
+
+'Imprimir el gráfico y que me lo guarde en un PDF en el escritorio
+    Sheets("Gráfico").Select
+    ActiveWindow.SelectedSheets.PrintOut Copies:=1, Collate:=True, _
+        IgnorePrintAreas:=False
+   
+'CERRAR TODOS LOS ARCHIVOS
+
+'Cerrar Base 2018 sin guardar
+Workbooks(Nombre_Base_Cambios).Worksheets("Pendiente").Activate
+Application.DisplayAlerts = False
+ActiveWorkbook.Close
+
+'Cerrar Plan revisión-preparación guardando los cambios
+Workbooks(Nombre_Base_Indicador).Activate
+Application.DisplayAlerts = False
+ActiveWorkbook.Save
+ActiveWorkbook.Close
+
+'Cerrar este libro
+ThisWorkbook.Activate
+ThisWorkbook.Save
+ThisWorkbook.Close
+
+End Sub
