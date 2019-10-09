@@ -1,6 +1,6 @@
 # VBA_coding_KPI
 This code corresponds to a macro which was created to automate the obtention of a KPI (Keep Performance Indicator).
-Basically, the code performs the following actions:
+Basically, the code performs the following actions:<br>
 -opens two Excel files. The first one is where the information is contained, and the second one is going to be used to copy the information in it.
 -filter the red cells in the opened file
 -copy several columns to other file.
