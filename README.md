@@ -1,7 +1,7 @@
 # VBA_coding_KPI
 This code corresponds to a macro which was created to automate the obtention of a KPI (Keep Performance Indicator).
 Basically, the code performs the following actions:<br>
--it opens two Excel files. The first one **(Excel_1) contains the needed information, and the second one <b>(Excel_2) is used to copy the information in it and update the chart.<br>
+-it opens two Excel files. The first one **(Excel_1) contains the needed information, and the second one (Excel_2) is used to copy the information in it and update the chart.<br>
 -Filters the red cells in the **Excel_1<br>
 -Transfers several columns from **Excel_1 to **Excel_2.<br>
 -Deletes the duplicated rows in **Excel_2<br>
